@@ -16,18 +16,22 @@ generated with each call of a new value.
  */
 
 function primeGen(threshold) {
-  // make an array with values up to the threshold, starting from 2
-  let array = Array.from({ length: threshold - 2 }, (_, i) => i + 2);
+  const array = [2];
+  let i; let x;
 
-  // remove all values that are a multiple of the current value
-  _.each(array, function (element, index) {
-    const c = array[index];
-    array = _.reject(array, function (num) {
-      if (c !== num) { return num % c === 0; }
-      return 0;
-    });
-  });
+  // add all odds to an array
+  for (i = 3; i < threshold; i += 2) {
+    array.push(i);
+  }
 
+  // loop through and remove factors
+  for (x = 0; array[x] < Math.sqrt(threshold); x++) {
+    for (i = 0; i < array.length; i++) {
+      if (array[i] > array[x]) {
+        if (array[i] % array[x] === 0) { array.splice(i, 1); }
+      }
+    }
+  }
   return array;
 }
 
@@ -64,7 +68,7 @@ First, the highest prime number below the threshold
 that is the sum of the most consecutive primes.
 Second, the count of the consecutive prime terms.
 
-maxPrimeSum(100) => [ 41, 6]
+maxPrimeSum(100) => [41, 6]
 maxPrimeSum(1000) => [953, 21]
 
 It would be a good idea to utilize the two previous functions
@@ -82,10 +86,12 @@ function maxPrimeSum(threshold) {
   _.each(primes, function () {
     // generate a maxPrimeSum list
     const list = cumulativeSum(primes);
+    // console.log(list);
 
     // splice out the sums above the threshold
     let max = _.find(list, function (num) { return num >= threshold; });
     list.splice(list.indexOf(max), list.length);
+    // console.log(list);
 
     // find the largest prime sum
     max = _.findLastIndex(list, function (num) { return primes.includes(num); });
@@ -101,9 +107,15 @@ function maxPrimeSum(threshold) {
 }
 
 function main() {
-  console.log(primeGen(10));
-  console.log(cumulativeSum([1, 2, 3, 4, 5, 6]));
-  console.log(maxPrimeSum(1000));
+  // console.log(primeGen(10));
+  // console.log(cumulativeSum([1, 2, 3, 4, 5, 6]));
+  console.log(maxPrimeSum(100000));
 }
 
 main();
+
+/*
+To optimize, I fixed the primeGen function to use Sieve of Eratosthenes method more efficiently.
+More specifically, I created an initial array of odds, not both odds and evens,
+I used the square root of the threshold as an upper bound, and a nested loop for easier comparison.
+ */
